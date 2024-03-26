@@ -30,4 +30,12 @@ user_route.get('/logout',adminLoginAuth.isLogin,userController.logout);
 
 user_route.get('/profile',userController.profile);
 
+user_route.get('/forget-password', adminLoginAuth.isLogout, userController.forgetLoad);
+
+user_route.post('/forget-password',userController.forgetPasswordVerify);
+
+user_route.get('/reset-password', adminLoginAuth.isLogout,userController.resetPasswordLoad);
+
+user_route.get('/reset-password',userController.resetPassword);
+
 module.exports = user_route;

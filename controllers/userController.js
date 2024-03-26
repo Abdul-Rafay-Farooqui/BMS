@@ -2,6 +2,45 @@
 const User = require('../models/userModel');
 const bcryptname = require('bcrypt');
 
+const nodemailer = require('nodemailer');
+const randomstring = require('randomstring');
+const config = require('../config/config');
+
+const adminController = require("../controllers/adminController");
+
+const sendResetPasswordMail = async(name,email,token)=>{
+    try {
+        
+        const transport = nodemailer.createTransport({
+            host:'smtp.gmail.com',
+            port:'587',
+            secure:false,
+            requireTLS:true,
+            auth:{
+                user:config.emailUser,
+                pass:config.emailPassword
+            }
+        });
+
+        const mailOption = {
+            from:config.emailUser,
+            to:email,
+            subject:'Reset Password',
+            html:'<p>Hii'+name+', Please click here to <a href="http://127.0.0.1:3001/reset-password?token='+token+'">Reset</a> your Password.</p>'//
+        }
+        transport.sendMail(mailOption, function(error,info){
+            if (error) {
+                console.log(error);
+            } else {
+                console.log("Email has been send:- ", info.response);
+            }
+        })
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 const loadLogin =async(req,res)=>{
     try {
         res.render('login');
@@ -61,9 +100,78 @@ const logout = async(req,res)=>{
     }
 }
 
+const forgetLoad = async(req,res)=>{
+    try {
+        
+        res.render('forget-password');
+
+    } catch (error) {
+        console,log(error.message)
+    }
+}
+
+const forgetPasswordVerify = async(req,res)=>{
+    try {
+        
+        const email = req.body.email;
+        const userData = await User.findOne({email:email});
+
+        if (userData) {
+            
+            const randomString = randomstring.generate();
+
+            await User.updateOne({email:email}, {$set:{token:randomString}});
+            sendResetPasswordMail(userData.name, userData.email, randomString);
+            res.render('forget-password', {message:"Please check your mail to Reset your password"});
+
+        } else {
+            res.render('forget-password',{message:"User email is incorrect!"});
+        }
+
+    } catch (error) {
+        console,log(error.message)
+    }
+}
+
+const resetPasswordLoad = async(req,res)=>{
+    try {
+        
+        const token =req.query.token;
+        const tokenData = await User.findOne({ token:token});
+
+        if (tokenData) {
+            res.render('reset-password',{user_id:token._id});
+        } else {
+            res.render('404');
+        }
+
+    } catch (error) {
+        console,log(error.message)
+    }
+}
+const resetPassword = async(req,res)=>{
+    try {
+        
+    const password =req.body.password;
+    const user_id =req.body.user_id;
+
+    const securePassword = adminController.securePassword(password);
+    await User.findByIdAndUpdate({_id:user_id},{$set:{password:securePassword,token:''}})
+
+        res.redirect('/login');
+
+    } catch (error) {
+        console,log(error.message)
+    }
+}
+
 module.exports = {
+    resetPasswordLoad,
     loadLogin,
+    forgetPasswordVerify,
+    resetPassword,
+    forgetLoad,
     verifyLogin,
     profile,
-    logout
+    logout,
 }
