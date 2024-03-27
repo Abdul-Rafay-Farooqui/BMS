@@ -88,7 +88,7 @@ const loadPostDashboard = async(req,res)=>{
 
 const addPost = async(req,res)=>{
     try {
-
+        
         var image = '';
         if(req.body.image !== undefined){
             image = req.body.image;
@@ -99,26 +99,30 @@ const addPost = async(req,res)=>{
             content:req.body.content,
             image: image
         });
+
         const postData = await post.save();
 
-        res.render('admin/postDashboard',{message:'Post Added Successfully!'});
+        res.send({ success:true,msg:'Post added successfully!',_id:postData._id });
+
+        // res.render('admin/postDashboard',{message:'Post added Successfully!'});
 
     } catch (error) {
-        console.log(error.message);
+        res.send({ success:false,msg:error.message });
     }
 }
-const uploadPostImage = async(req,res)=>{
-    try {
-        
+const uploadPostImage = async(req,res)=>{//Api
+    try{
         var imagePath = '/images';
         imagePath = imagePath+'/'+req.file.filename;
-        res.send({success:true,msg:'Post Image upload Successfully',path:imagePath});
 
-    } catch (error) {
-        
+        res.send({success:true,msg:'Post Image upload successfully!',path:imagePath});
+
+    }catch(error){
         res.send({success:false,msg:error.message});
     }
 }
+
+
 
 module.exports = {
 

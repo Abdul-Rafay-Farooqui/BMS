@@ -35,11 +35,12 @@
                         <p><%= post.content %></p>
                     </section>
                 </article>
-                <!-- Comments section-->
+            
                 <section class="mb-5">
                     <div class="card bg-light">
                         <div class="card-body">
-                            <!-- Comment form-->
+                        
+
                             <h5>Leave a Comment</h5>
                             <form class="mb-4" id="comment-form">
                                 <input type="hidden" name="post_id" value="<%= post._id %>">
@@ -50,7 +51,7 @@
 
                             <p class="com-status" style="color: green;"></p>
 
-                            <!-- Comment with nested comments-->
+                        
                             <% 
                                 if (post.comments.length >= 0){
                                 post.comments = post.comments.reverse();
@@ -74,7 +75,8 @@
             </div>
             <!-- Side widgets-->
             <div class="col-lg-4">
-                <!-- Search widget-->
+                
+
                 <div class="card mb-4">
                     <div class="card-header">Search</div>
                     <div class="card-body">
