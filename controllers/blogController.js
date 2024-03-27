@@ -28,7 +28,7 @@ const addComment = async(req,res)=>{
         var username = req.body.username;
         var commnet = req.body.comment;
 
-        await Post.findByIdAndUpdate({_id:post_id},{
+        await  Post.findByIdAndUpdate({_id:post_id},{
             $push:{
                 "comments":{ username:username, comment:commnet}
             }

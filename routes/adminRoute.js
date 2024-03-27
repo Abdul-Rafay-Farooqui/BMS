@@ -46,4 +46,6 @@ admin_route.get('/dashboard',adminLoginAuth.isLogin,adminController.dashboard);
 admin_route.get('/create-post',adminLoginAuth.isLogin, adminController.loadPostDashboard);
 admin_route.post('/create-post',adminLoginAuth.isLogin, adminController.addPost);
 
+admin_route.post('/upload-post-image',upload.single('image'),adminLoginAuth.isLogin, adminController.uploadPostImage)
+
 module.exports =admin_route;
