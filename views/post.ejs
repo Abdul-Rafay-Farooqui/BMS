@@ -45,6 +45,8 @@
                             <form class="mb-4" id="comment-form">
                                 <input type="hidden" name="post_id" value="<%= post._id %>">
                                 <input type="text" name="username" placeholder="Enter your name" required class="form-control mb-3">
+                                <input type="email" name="email" placeholder="Enter your mail" required class="form-control mb-3">
+                                
                                 <textarea class="form-control" name="comment" required rows="3" placeholder="Join the discussion and leave a comment!"></textarea>
                                 <input type="submit" class="btn btn-primary mt-3">
                             </form>
@@ -108,9 +110,24 @@
                         },5000);
                     }
                 });
-
+            
             });
-        })
+        });
+            $('.do-reply').submit(function(event){
+                event.preventDefault();
+
+                var formData = $(this).serialize();
+                var obj = $(this);
+                    $.ajax({
+                    url:"/do-reply",
+                    type:"POST",
+                    data:formData,
+                    success:function(data){
+                        $(obj)[0].reset();
+                        $(obj).parent().parent().append('<p>'+data.msg+'</p>');
+                    }
+            });
+        });
     </script>
 
 <%- include('./layouts/footer.ejs') %>
