@@ -1,7 +1,7 @@
 <%- include('./layouts/header.ejs') %>
 
      <!-- Page content-->
-     <div class="container mt-5">
+    <div class="container mt-5">
         <div class="row">
             <div class="col-lg-8">
                 <!-- Post content-->
@@ -21,11 +21,11 @@
                     <% 
                         if (post.image !== undefined && post.image !== '') {
                             %>
-                                <img class="img-fluid rounded mb-4 mb-lg-0" src="<%= post.image %>" alt="..." /></div>
+                                <img class="img-fluid rounded mb-4 mb-lg-0" src="<%= post.image %>" alt="..." />
                             <%
                         } else {
                             %>
-                                <img class="img-fluid rounded mb-4 mb-lg-0" src="https://dummyimage.com/900x400/dee2e6/6c757d.jpg" alt="..." /></div>
+                                <img class="img-fluid rounded mb-4 mb-lg-0" src="https://dummyimage.com/900x400/dee2e6/6c757d.jpg" alt="..." />
                             <%
                         }
                     %>
@@ -34,51 +34,54 @@
                     <section class="mb-5">
                         <p><%= post.content %></p>
                     </section>
-                </article>
+                    </article>
             
-                <section class="mb-5">
-                    <div class="card bg-light">
-                        <div class="card-body">
+                    <section class="mb-5">
+                        <div class="card bg-light">
+                            <div class="card-body">
                         
 
-                            <h5>Leave a Comment</h5>
-                            <form class="mb-4" id="comment-form">
-                                <input type="hidden" name="post_id" value="<%= post._id %>">
-                                <input type="text" name="username" placeholder="Enter your name" required class="form-control mb-3">
-                                <input type="email" name="email" placeholder="Enter your mail" required class="form-control mb-3">
+                                <h5>Leave a Comment</h5>
+                                <form class="mb-4" id="comment-form">
+                                    <input type="hidden" name="post_id" value="<%= post._id %>">
+                                    <input type="text" name="username" placeholder="Enter your name" required class="form-control mb-3">
+                                    <input type="email" name="email" placeholder="Enter your mail" required class="form-control mb-3">
                                 
-                                <textarea class="form-control" name="comment" required rows="3" placeholder="Join the discussion and leave a comment!"></textarea>
-                                <input type="submit" class="btn btn-primary mt-3">
-                            </form>
-
-                            <p class="com-status" style="color: green;"></p>
-
-                        
-                            <% 
-                                if (post.comments.length >= 0){
-                                post.comments = post.comments.reverse();
-                                post.comments.forEach(function(comment){
-                            %>
-                            <div class="d-flex mt-3">
-                                <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                                    <textarea class="form-control" name="comment" required rows="3" placeholder="Join the discussion and leave a comment!"></textarea>
+                                    <input type="submit" class="btn btn-primary mt-3">
+                                    </form>
+                                
+                                    <p class="com-status" style="color: green;"></p>
+                                
+                                
+                                <div id="comment-section">
+                                    <% 
+                                    if (post.comments.length >= 0){
+                                        post.comments = post.comments.reverse();
+                                        post.comments.forEach(function(comment){
+                                    %>
+                                    <div class="d-flex mt-3">
+                                        <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
                                         <div class="ms-3">
-                                        <div class="fw-bold"><%= comment.username %></div>
-                                        <%= comment.comment %>
+                                                <div class="fw-bold"><%= comment.username %></div>
+                                                <%= comment.comment %>
+
+                                        </div>
+                                    </div>
+                            
+                                    <%
+                                        });
+                                    }
+                                    %>
                                 </div>
                             </div>
-                            <%
-                                });
-                            }
-                            %>
-                          
                         </div>
-                    </div>
-                </section>
-            </div>
+                    </section>
+            </div>    
             <!-- Side widgets-->
             <div class="col-lg-4">
                 
-
+                
                 <div class="card mb-4">
                     <div class="card-header">Search</div>
                     <div class="card-body">
@@ -87,23 +90,32 @@
                             <button class="btn btn-primary" id="button-search" type="button">Go!</button>
                         </div>
                     </div>
-                </div>
+                    </div>
             </div>
         </div>
-    </div>
-
+     </div>
+    
     <script>
+        var socket = io();
         $(document).ready(function(){
             $('#comment-form').submit(function(event){
                 event.preventDefault();
 
-                var formData = $(this).serialize();
+                var formData = {};
+                $.each($(this).serializeArray(),function(i, field){
+                    formData[field.name] = field.value;
+                })
 
                 $.ajax({
                     url:"/add-comment",
                     type:"POST",
                     data:formData,
                     success:function(data){
+
+                        formData._id=data._id;
+
+                        socket.emit("new_comment",formData);
+
                         $('.com-status').text(data.msg);
                         setTimeout(function(){
                             $('.com-status').text('');
@@ -113,6 +125,23 @@
             
             });
         });
+        
+            socket.on("new_comment",function(comment){
+
+                var html ='';
+                html += `
+                <div class="d-flex mt-3">
+                        <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                        <div class="ms-3">
+                            <div class="fw-bold">`+comment.username+`</div>
+                            `+comment.comment+`
+
+                        </div>
+                </div>
+                `;
+                $('#comment-section').prepend(html);
+            });
+
             $('.do-reply').submit(function(event){
                 event.preventDefault();
 

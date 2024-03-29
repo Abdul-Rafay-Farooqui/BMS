@@ -72,7 +72,9 @@ const blogSetupSave = async(req,res)=>{
 
 const dashboard = async(req,res)=>{
     try {
-        res.render('admin/dashboard')//
+
+        const allPosts = await Post.find({});
+        res.render('admin/dashboard', {posts:allPosts})//
     } catch (error) {
         console.log(error.message)
     }
@@ -121,12 +123,24 @@ const uploadPostImage = async(req,res)=>{//Api
         res.send({success:false,msg:error.message});
     }
 }
+const deletePost = async(req,res)=>{//Api
+    try{
+
+        await Post.deleteOne({_id:req.body.id});
+        res.status(200).send({success:true,msg:'Post deleted Successfully!'});
+
+
+    }catch(error){
+        res.status(400).send({success:false,msg:error.message});
+    }
+}
 
 
 
 module.exports = {
 
     addPost,
+    deletePost,
     uploadPostImage,
     loadPostDashboard,
     dashboard,
