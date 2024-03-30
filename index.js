@@ -24,6 +24,7 @@ app.use('/',userRoute);
 
 //for blog routes
 const blogRoute = require("./routes/blogRoute");
+const { ObjectId } = require("mongodb");
 app.use('/',blogRoute);
 
 io.on("connection",function(socket){
@@ -38,7 +39,11 @@ io.on("connection",function(socket){
     socket.on("new_comment",function(comment){
         io.emit("new_comment",comment);
     });
+    socket.on("delete_post",function(postId){
+        socket.broadcast.emit('delete_post',postId);
+    });
 });
+
 
 // app.listen(3001,function(){
 //     console.log("Server id running");

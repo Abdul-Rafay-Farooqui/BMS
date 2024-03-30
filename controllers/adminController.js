@@ -1,6 +1,7 @@
 const BlogSetting = require('../models/blogSettingModel');
 const User = require('../models/userModel');
 const Post = require('../models/postModel');
+const Setting = require('../models/settingModel');
 const bcrypt = require('bcrypt');
 
 const securePassword = async(password)=>{
@@ -134,6 +135,63 @@ const deletePost = async(req,res)=>{//Api
         res.status(400).send({success:false,msg:error.message});
     }
 }
+const loadEditPost = async(req,res)=>{//Api
+    try{
+
+        const postData = await Post.findOne({ _id:req.params.id})
+        res.render('admin/editPost',{post:postData});
+
+    }catch(error){
+        console.log(error.message);
+    }
+}
+const updatePost = async(req,res)=>{//Api
+    try{
+        await Post.findByIdAndUpdate( {_id:req.body.id},{
+        
+          $set:{
+            title: req.body.title,
+            content: req.body.content,
+            image: req.body.image
+          }  
+
+        });
+        res.status(200).send({success:true,msg:'Post updated Successfully!'});
+
+    }catch(error){
+        res.status(400).send({success:false,msg:error.message});
+
+    }
+}
+const loadSettings = async(req,res) => {
+    try{
+
+        var setting = await Setting.findOne({});
+        var postLimit = 0;
+        if(setting != null){
+            postLimit = setting.post_limit
+        }
+
+        res.render('admin/setting',{limit:postLimit});
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+const saveSettings = async(req,res)=>{
+    try{
+
+        await Setting.updateOne({},{
+            post_limit:req.body.limit
+        },
+        {upsert:true});
+
+        res.status(200).send({success:true,msg:'Settings updated!'});
+
+    } catch (error) {
+        res.status(400).send({success:false,msg:error.message});
+    }
+}
 
 
 
@@ -141,6 +199,10 @@ module.exports = {
 
     addPost,
     deletePost,
+    loadEditPost,
+    loadSettings,
+    saveSettings,
+    updatePost,
     uploadPostImage,
     loadPostDashboard,
     dashboard,

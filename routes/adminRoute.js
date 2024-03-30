@@ -50,5 +50,11 @@ admin_route.post('/upload-post-image',upload.single('image'),adminLoginAuth.isLo
 
 admin_route.post('/delete-post',adminLoginAuth.isLogin, adminController.deletePost);
 
+admin_route.get('/edit-post/:id',adminLoginAuth.isLogin, adminController.loadEditPost);
+admin_route.post('/update-post',adminLoginAuth.isLogin, adminController.updatePost);
+
+admin_route.get('/settings',adminLoginAuth.isLogin, adminController.loadSettings);
+admin_route.post('/settings',adminLoginAuth.isLogin, adminController.saveSettings);
+
 
 module.exports =admin_route;
